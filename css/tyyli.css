@@ -1,0 +1,69 @@
+html
+{
+	font-size: 16px;
+	font-family: arial;
+}
+
+#header
+{
+	background-color: #c0bdbd;
+}
+
+#links
+{
+	padding: 4px;
+}
+
+
+#loota
+{
+	background-color: #C0C0C0;
+	margin: 0 auto;
+	margin-top: 50px;
+	width: 25%;
+	min-width: 350px;
+	padding: 15px;
+	border: 1px solid #5e606a;
+	line-height: 35px;
+	box-shadow: 10px 10px 5px grey;
+	font-size: 24px; 
+}
+
+#nappi
+{
+	margin-top: 10px;
+	height: 28px;
+	min-width: 100px;
+}
+
+.oikea
+{
+	float: right;
+}
+
+.input
+{
+	border: 1px solid #7ea8a5;
+	height: 28px;
+	padding-left: 3px;
+}
+/* käytetään aina sen jälkeen, kun ollaan sijoitettu elementti floatilla */
+.clear
+{
+	clear: both;
+}
+#content
+{
+	margin-top: 10px; 
+	border: 1px solid #C0C0C0;
+}
+#leftcontent
+{
+	padding: 10px;
+	vertical-align: top;
+}
+#rightcontent
+{
+	padding:10px;
+	vertical-align: top;
+}
