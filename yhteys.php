@@ -1,8 +1,8 @@
 <?php
     $servername = "localhost";
-    $username = "mm19";
-    $password = "mm19";
-    $db = "crm";
+    $username = " ";
+    $password = " ";
+    $db = " ";
             
     try
     {
