@@ -124,6 +124,7 @@
     {
         $nimi = $_POST['contName'];
         $yID = $_POST['yritysid'];
+        $conID = $_POST['conID'];
         $title = $_POST['title'];
         $phone = $_POST['phone'];
         $email = $_POST['email'];
@@ -147,29 +148,35 @@
     {
         $yritysid = $_POST['yritysid'];
 
-        $haku = $yhteys->prepare("SELECT phone, email, yID FROM $db.companies WHERE id = :yritys");
+        $haku = $yhteys->prepare("SELECT phone, email, yID, name, id FROM $db.companies WHERE id = :yritys");
         $haku->execute(array(':yritys'=>$yritysid));
         $kanta = $haku->fetch(PDO::FETCH_ASSOC);
-        $tiedot = "<input type=\"button\" class=\"button\" id=\"upComp\" value=\"Päivitä Yrityksen tiedot\" /><hr>
-            <div class=\"tiedot\">".$kanta['yID']."<br />".$kanta['email']."<br />".$kanta['phone']."</div><hr>
-            <input type=\"button\" class=\"button\" id=\"delComp\" value=\"Poista Yrityksen tiedot\" />";
+        $tiedot = "<input type=\"button\" class=\"button\" id=\"buttonUpComp\" value=\"Päivitä Yrityksen tiedot\" /><hr>
+                    <div class=\"tiedot\">".$kanta['yID']."<br />".$kanta['email']."<br />".$kanta['phone']."</div><hr>
+                    <input type=\"button\" class=\"button\" id=\"delComp\" value=\"Poista Yrityksen tiedot\" />
+                    <input type=\"hidden\" id=\"knownName".$kanta['id']."\" value=\"".$kanta['name']."\">
+                    <input type=\"hidden\" id=\"knownYID".$kanta['id']."\" value=\"".$kanta['yID']."\">
+                    <input type=\"hidden\" id=\"knownEmail".$kanta['id']."\" value=\"".$kanta['email']."\">
+                    <input type=\"hidden\" id=\"knownPhone".$kanta['id']."\" value=\"".$kanta['phone']."\">";
 
         $haku = $yhteys->prepare("SELECT id, title, name, phone, email FROM $db.contacts WHERE companyid = :yritys");
         $haku->execute(array(':yritys'=>$yritysid));
+        
         $yhteystiedot = "<input type=\"button\" class=\"button\" id=\"addContact\" value=\"Lisää Yhteyshenkilö\" /><hr>";
         $bool = false;
         while($kanta2 = $haku->fetch(PDO::FETCH_ASSOC))
         {
-            $yhteystiedot.="<div class=\"yhtiedot\">".$kanta2['name']."<br />".$kanta2['title']."<br />".$kanta2['email']."<br />".$kanta2['phone']."</div>";
+            $yhteystiedot.="<div class=\"yhtiedot\">".$kanta2['name']."<br />".$kanta2['title']."<br />".$kanta2['email']."<br />".$kanta2['phone']."
+                            <input type=\"button\" style=\"float:left\" class=\"button\" id=\"buttonUpCont".$kanta2['id']."\" value=\"Päivitä\" />
+                            <input type=\"button\" style=\"float:right\" class=\"button\" id=\"buttonDelCont".$kanta2['id']."\" value=\"Poista\" /></div>
+                            <input type=\"hidden\" id=\"knownContName".$kanta2['id']."\" value=\"".$kanta2['name']."\">
+                            <input type=\"hidden\" id=\"knownContTitle".$kanta2['id']."\" value=\"".$kanta2['title']."\">
+                            <input type=\"hidden\" id=\"knownContEmail".$kanta2['id']."\" value=\"".$kanta2['email']."\">
+                            <input type=\"hidden\" id=\"knownContPhone".$kanta2['id']."\" value=\"".$kanta2['phone']."\">
+                            <input type=\"hidden\" id=\"knownContId".$kanta2['id']."\" value=\"".$kanta2['id']."\">";
             if($kanta2 != ''){$bool=true;}
         }
 
-        if($bool==true)
-        {
-            $yhteystiedot.= "<hr><input style=\"float:left\" type=\"button\" class=\"button\" id=\"upCont\" value=\"Päivitä Yhteyshenkilö\" />
-                <input style=\"float:right\" type=\"button\" class=\"button\" id=\"delCont\" value=\"Poista Yhteyshenkilö\" />";
-        }
-            
         $haku = $yhteys->prepare("SELECT e.id, e.event, DATE_FORMAT(e.time, '%d.%m.%Y %H:%i')
             as time, e.saver, u.name FROM $db.events e LEFT JOIN $db.users u ON u.id = e.saver WHERE e.companyid = :yritys");
 

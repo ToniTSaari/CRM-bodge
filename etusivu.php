@@ -4,6 +4,7 @@
 		session_start();
 	}
 	include 'yhteys.php'; 
+	//include 'form.php';
 	$kt = $_SESSION["kt"];
 	if ($kt <> '')
 	{
@@ -16,12 +17,17 @@
 			$c_name[$c] = $ha['name'];
 			$c++;
 		}
+
+		/* $haku = $yhteys->prepare("SELECT name FROM $db.users WHERE id = :ID");
+		$haku->execute(array(':ID'=>$kt));
+		$userarray = $haku->fetch(PDO::FETCH_ASSOC);
+		$user = $userarray['name']; */
 ?>
 
 <html lang="fi">
 	<head>
 		<meta charset="utf-8">
-		<title>Login</title>
+		<title>CRM</title>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -31,6 +37,7 @@
 	<body>
 		<div id="container">
 			<div id="header"><span id="logo">CRM</span></div>
+			<div id="user"><?php echo "<input type=\"hidden\" id=\"CRMuser\" value=\"$kt\">" ?></div>
 			<div id="links">LINKIT</div>
 			<div id="content">
 				<div id="leftcontent">
@@ -41,6 +48,7 @@
 						}
 					?>
 					<hr><input type="button" class="button" id="addCompany" value="Lisää Yritys" />
+					<!--<hr><input type="button" class="button" id="open" value="Tesmi" />-->
 				</div>
 				<div id="rightcontent">
 					<div id="persu"></div>
@@ -50,6 +58,7 @@
 			<div id="footer"></div>
 		</div>
 	</body>
+	<!--<div id="dialog"></div>-->
 	<div id="dialogComp" title="Lisää uusi yritys">
 		<form>
 			Yrityksen Nimi<br />
@@ -116,11 +125,9 @@
 			<input type="button" value="Kyllä" id="delCont" class="dialog">
 		</form>
 	</div>
-	<div id="dialogEvent" title="Lisää uusi yhteystieto">
+	<div id="dialogEvent" title="Lisää uusi tapahtuma">
 		<form>
-			Käyttäjä #<br />
-			<input type="number" id="user"><br />
-			Tapahtuma<br />
+			Tapahtuma:<br />
 			<textarea id="tapaus"></textarea>
 			<input type="submit" id="saveEvent" class="dialog">
 		</form>
@@ -131,6 +138,7 @@
 	var mem = '';
 	$(document).ready(function()
 	{
+		$("#dialog").dialog({autoOpen: false});
 		$("#dialogComp").dialog({autoOpen: false});
 		$("#updateComp").dialog({autoOpen: false});
 		$("#deleteComp").dialog({autoOpen: false});
@@ -144,8 +152,20 @@
 			$("#dialogComp").dialog('open');
 		})
 
-		$(document).on('click',"#upComp",function()
+		$(document).on('click',"#buttonUpComp",function()
 		{
+			var nimitemp = "#knownName" + mem;
+			var tittelitemp = "#knownYID" + mem;
+			var mailitemp = "#knownEmail" + mem;
+			var puhelintemp = "#knownPhone" + mem;
+			var nimi = $(nimitemp).val();
+			var titteli = $(tittelitemp).val();
+			var maili = $(mailitemp).val();
+			var puhelin = $(puhelintemp).val();
+			$('#upCompName').val(nimi);
+			$('#up-yTunnus').val(titteli);
+			$('#upEmail').val(maili);
+			$('#upPhone').val(puhelin);
 			$("#updateComp").dialog('open');
 		})
 
@@ -159,13 +179,34 @@
 			$("#dialogCont").dialog('open');
 		})
 
-		$(document).on('click',"#upCont",function()
+		$(document).on('click','[id^=buttonUpCont]',function()
 		{
+			var id = $(this).attr('id');
+			var nro = id.match(/\d+/);
+			console.log('Painettu ' + nro);
+			console.log('Painettu ' + id);
+			var nimitemp = "#knownContName" + nro;
+			var tittelitemp = "#knownContTitle" + nro;
+			var mailitemp = "#knownContEmail" + nro;
+			var puhelintemp = "#knownContPhone" + nro;
+			var nimi = $(nimitemp).val();
+			var titteli = $(tittelitemp).val();
+			var maili = $(mailitemp).val();
+			var puhelin = $(puhelintemp).val();
+			$('#upContName').val(nimi);
+			$('#upTitle').val(titteli);
+			$('#upContEmail').val(maili);
+			$('#upContPhone').val(puhelin);
 			$("#updateCont").dialog('open');
 		})
 
-		$(document).on('click',"#delCont",function()
+		$(document).on('click','[id^=buttonDelCont]',function()
 		{
+			var id = $(this).attr('id');
+			var nro = id.match(/\d+/);
+			var nimitemp = "#knownContName" + nro;
+			var nimi = $(nimitemp).val();
+			$('#delContName').val(nimi);
 			$("#deleteCont").dialog('open');
 		})
 
@@ -173,6 +214,25 @@
 		{
 			$("#dialogEvent").dialog('open');
 		})
+
+		/* $("#open").click(function()
+		{
+			var numero = 1;
+			var tiedot = "num=" + numero + "&func=form";
+			$.ajax(
+			{
+				type: "POST",
+				url: "form.php",
+				data: tiedot,
+				dataType: 'json',
+				cache: false,
+				success: function(data)
+				{
+					$("#dialog").html($(data.form));
+				}
+			})
+			$("#dialog").dialog('open');
+		}) */
 
 		$("#saveComp").click(function()
 		{
@@ -275,7 +335,8 @@
 			var title = $("#upTitle").val();
 			var conEmail = $("#upContEmail").val();
 			var conPhone = $("#upContPhone").val();
-			var upConTiedot = 'yritysid=' + mem + '&contName=' + nimi + '&title=' + title + '&email=' + conEmail + '&phone=' + conPhone + '&toiminto=upCont';
+			var conID = $("#knownContId").val();
+			var upConTiedot = 'yritysid=' + mem + '&conID' + conID +'&contName=' + nimi + '&title=' + title + '&email=' + conEmail + '&phone=' + conPhone + '&toiminto=upCont';
 
 			console.log('Saatu ' + upConTiedot);
 			
@@ -294,7 +355,7 @@
 			})
 		})
 
-		$("#delCont").click(function()
+		$('#delCont').click(function()
 		{
 			var nimi = $("#delContName").val();
 			var delYht = 'yritysid=' + mem + '&nimi='+ nimi + '&toiminto=delCont';
@@ -318,7 +379,7 @@
 
 		$("#saveEvent").click(function()
 		{
-			var user = $("#user").val();
+			var user = $("#CRMuser").val();
 			var event = $("#tapaus").val();
 			var tapausTiedot = 'yritysid=' + mem + '&user=' + user + '&event=' + event + '&toiminto=addEvent';
 			if(mem !== null)
@@ -346,6 +407,7 @@
 			if(nro !== null)
 			{
 				console.log('Painettu' + nro);
+				console.log('Painettu' + id);
 				var tiedot = 'yritysid=' + nro + '&toiminto=haetiedot';
 				$.ajax(
 				{
